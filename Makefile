@@ -16,7 +16,7 @@ $(TARGET): $(OBJ)
 	@echo ""
 	@echo "        Si ves warnings de 'unused parameter', es normal por ahora."
 	@echo "    Esos parámetros todavía no se usan aún, pero son parte del esqueleto."
-	@echo "    Se irán eliminando a medida que se implemente read/search/max/min/all."
+	@echo "      Se irán eliminando a medida que se implemente search/max/min/all."
 	@echo "============================================================================="
 	@echo ""
 

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "bio.h"
 
+#define MAX_SEQUENCE_LENGTH 1000
+
 void bio_state_init(bio_state *state) {
 	state->root = NULL;
 	state->gene_length = 0;
@@ -27,6 +29,95 @@ void bio_state_clear(bio_state *state) {
 	state->is_initialized = 0;
 }
 
+// esta función lee una línea del archivo, limpia saltos de linea, valida y guarda en sequence
+int load_sequence_from_file(bio_state *state, char *filename) {
+	FILE *file = fopen(filename, "r");
+	if (file == NULL) {
+		printf("Error: no se pudo abrir el archivo %s\n", filename);
+		return 1;
+	}
+
+	char buffer[MAX_SEQUENCE_LENGTH];
+
+	if (fgets(buffer, sizeof(buffer), file) == NULL) {
+		printf("Error: no se pudo leer la secuencia desde %s\n", filename);
+		fclose(file);
+		return 1;
+	}
+
+	fclose(file);
+
+	// eliminación de saltos de línea
+	size_t len = strlen(buffer);
+	while (len > 0 && (buffer[len - 1] == '\n' || buffer[len - 1] == '\r')) {
+		buffer[len - 1] = '\0';
+		len = len - 1;
+	}
+
+	if (len == 0) {
+		printf("Error: la secuencia está vacía\n");
+		return 1;
+	}
+
+	// validar que solo tenga A - C - G - T
+	size_t i = 0;
+	while (i < len) {
+		char c = buffer[i];
+		if (c != 'A' && c != 'C' && c != 'G' && c != 'T') {
+			printf("Error: caracter inválido '%c' en la secuencia\n", c);
+			return 1;
+		}
+		i = i + 1;
+	}
+
+	// liberar secuencia anterior si existía
+	if (state->sequence != NULL) {
+		free(state->sequence);
+		state->sequence = NULL;
+		state->sequence_length = 0;
+	}
+
+	state->sequence = malloc((len + 1) * sizeof(char));
+	if (state->sequence == NULL) {
+		printf("Error: no se pudo reservar memoria para la secuencia\n");
+		return 1;
+	}
+
+	strcpy(state->sequence, buffer);
+	state->sequence_length = (int)len;
+
+	return 0;
+}
+
+void build_index(bio_state *state) {
+	if (state->root == NULL) {
+		return;
+	}
+
+	int n = state->sequence_length;
+	int m = state->gene_length;
+
+	if (n < m) {
+		printf("Error: la secuencia tiene solo %d caracteres y el gen mide %d\n", n, m);
+		printf("       No es posible construir ningún gen de esa longitud.\n");
+		return;
+	}
+
+	// usamos un buffer para copiar cada gen
+	char gene_buffer[m + 1];
+	int i;
+	int j;
+
+	for (i = 0; i <= n - m; i = i + 1) {
+		for (j = 0; j < m; j = j + 1) {
+			gene_buffer[j] = state->sequence[i + j];
+		}
+		gene_buffer[m] = '\0';
+
+		trie_insert(state->root, gene_buffer, i);
+	}
+}
+
 int bio_start(bio_state *state, int gene_length) {
 	if (gene_length <= 0) {
 		printf("Error: gene_length debe ser mayor que 0\n");
@@ -49,7 +140,26 @@ int bio_start(bio_state *state, int gene_length) {
 }
 
 int bio_read(bio_state *state, char *filename) {
-	printf("bio read no implementado\n");
+	if (state->is_initialized == 0 || state->root == NULL || state->gene_length <= 0) {
+		printf("Error: primero debes ejecutar start <gene_length>\n");
+		return 1;
+	}
+
+	if (filename == NULL) {
+		printf("Error: nombre de archivo inválido\n");
+		return 1;
+	}
+
+	// cargar la secuencia desde archivo
+	int result = load_sequence_from_file(state, filename);
+	if (result != 0) {
+		return result;
+	}
+
+	// construir índice de todos los genes de largo m
+	build_index(state);
+
+	printf("Sequence S read from file %s\n", filename);
 	return 0;
 }
 

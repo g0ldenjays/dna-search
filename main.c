@@ -12,7 +12,7 @@ int main(void) {
 	bio_state_init(&state);
 
 	printf("dna-search\n");
-	printf("Escribe un comando (start, read, search, max, min, all, exit)\n");
+	printf("Type command (start, read, search, max, min, all, exit)\n");
 
 	while (1) {
 		printf("> ");
@@ -41,7 +41,14 @@ int main(void) {
 		    }
 
 		} else if (strncmp(line, "read", 4) == 0) {
-			printf("Comando read recibido (WIP)\n");
+		    char filename[256];
+		    int scanned = sscanf(line, "read %255s", filename);
+
+		    if (scanned != 1) {
+		        printf("Uso: read <archivo>\n");
+		    } else {
+		        bio_read(&state, filename);
+		    }
 
 		} else if (strncmp(line, "search", 6) == 0) {
 			printf("Comando search recibido (WIP)\n");
@@ -54,7 +61,7 @@ int main(void) {
 
 		} else if (strcmp(line, "all") == 0) {
 			printf("Comando all recibido (WIP)\n");
-			
+
 		} else if (strlen(line) == 0) {
 			// línea vacía = ignorar comandu
 		} else {
