@@ -29,18 +29,32 @@ int main(void) {
 		// parseado principal
 		if (strcmp(line, "exit") == 0) {
 			break;
+
 		} else if (strncmp(line, "start", 5) == 0) {
-			printf("Comando start recibido (WIP)\n");
+		    int m;
+		    int scanned = sscanf(line, "start %d", &m);
+
+		    if (scanned != 1) {
+		        printf("Uso: start <gene_length>\n");
+		    } else {
+		        bio_start(&state, m);
+		    }
+
 		} else if (strncmp(line, "read", 4) == 0) {
 			printf("Comando read recibido (WIP)\n");
+
 		} else if (strncmp(line, "search", 6) == 0) {
 			printf("Comando search recibido (WIP)\n");
+
 		} else if (strcmp(line, "max") == 0) {
 			printf("Comando max recibido (WIP)\n");
+
 		} else if (strcmp(line, "min") == 0) {
 			printf("Comando min recibido (WIP)\n");
+
 		} else if (strcmp(line, "all") == 0) {
 			printf("Comando all recibido (WIP)\n");
+			
 		} else if (strlen(line) == 0) {
 			// línea vacía = ignorar comandu
 		} else {

@@ -11,8 +11,40 @@ void bio_state_init(bio_state *state) {
 	state->is_initialized = 0;
 }
 
+void bio_state_clear(bio_state *state) {
+	if (state->root != NULL) {
+		trie_free(state->root, state->gene_length);
+		state->root = NULL;
+	}
+
+	if (state->sequence != NULL) {
+		free(state->sequence);
+		state->sequence = NULL;
+	}
+
+	state->gene_length = 0;
+	state->sequence_length = 0;
+	state->is_initialized = 0;
+}
+
 int bio_start(bio_state *state, int gene_length) {
-	printf("bio start no implementado\n");
+	if (gene_length <= 0) {
+		printf("Error: gene_length debe ser mayor que 0\n");
+		return 1;
+	}
+
+	bio_state_clear(state);
+
+	state->root = trie_create(gene_length);
+	if (state->root == NULL) {
+		printf("Error: no se pudo crear el trie\n");
+		return 1;
+	}
+
+	state->gene_length = gene_length;
+	state->is_initialized = 1;
+
+	printf("Tree created with height %d\n", gene_length);
 	return 0;
 }
 
