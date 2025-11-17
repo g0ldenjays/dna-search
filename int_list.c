@@ -70,3 +70,15 @@ int int_list_count(int_list *list) {
 
 	return count;
 }
+
+void int_list_foreach(int_list *list, int_list_visit_fn visit, void *user_data) {
+	if (list == NULL || visit == NULL) {
+		return;
+	}
+
+	int_node *current = list->head;
+	while (current != NULL) {
+		visit(current->value, user_data);
+		current = current->next;
+	}
+}

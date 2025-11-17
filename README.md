@@ -14,3 +14,6 @@
 3) Teniendo un archivo adn.txt como el dejado en el repo, ingresar "read adn.txt".
 
 - De momento hasta aquí llega la funcionalidad del programa. (WIP)
+
+### Detalles:
+- El .txt debe tener 2 únicas líneas, la primera con el gen y la segunda en blanco (terminar la primera línea con un enter).

@@ -31,28 +31,34 @@ int main(void) {
 			break;
 
 		} else if (strncmp(line, "start", 5) == 0) {
-		    int m;
-		    int scanned = sscanf(line, "start %d", &m);
+			int m;
+			int scanned = sscanf(line, "start %d", &m);
 
-		    if (scanned != 1) {
-		        printf("Uso: start <gene_length>\n");
-		    } else {
-		        bio_start(&state, m);
-		    }
+			if (scanned != 1) {
+				printf("Uso: start <gene_length>\n");
+			} else {
+				bio_start(&state, m);
+			}
 
 		} else if (strncmp(line, "read", 4) == 0) {
-		    char filename[256];
-		    int scanned = sscanf(line, "read %255s", filename);
+			char filename[256];
+			int scanned = sscanf(line, "read %255s", filename);
 
-		    if (scanned != 1) {
-		        printf("Uso: read <archivo>\n");
-		    } else {
-		        bio_read(&state, filename);
-		    }
+			if (scanned != 1) {
+				printf("Uso: read <archivo>\n");
+			} else {
+				bio_read(&state, filename);
+			}
 
 		} else if (strncmp(line, "search", 6) == 0) {
-			printf("Comando search recibido (WIP)\n");
-
+			char gene[256];
+			int scanned = sscanf(line, "search %255s", gene);
+				
+			if (scanned != 1) {
+				printf("Uso: search <GEN>\n");
+			} else {
+				bio_search_command(&state, gene);
+			}
 		} else if (strcmp(line, "max") == 0) {
 			printf("Comando max recibido (WIP)\n");
 

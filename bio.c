@@ -163,8 +163,71 @@ int bio_read(bio_state *state, char *filename) {
 	return 0;
 }
 
+void print_position(int value, void *user_data) {
+	int *first_ptr = (int *)user_data;
+
+	if (*first_ptr) {
+		printf("%d", value);
+		*first_ptr = 0;
+	} else {
+		printf(" %d", value);
+	}
+}
+
 void bio_search_command(bio_state *state, char *gene) {
-	printf("bio search no implementado\n");
+	if (state == NULL) {
+		return;
+	}
+
+	if (state->is_initialized == 0 || state->root == NULL) {
+		printf("Error: primero debes ejecutar start <gene_length>\n");
+		return;
+	}
+
+	if (state->sequence == NULL || state->sequence_length == 0) {
+		printf("Error: primero debes ejecutar read <archivo>\n");
+		return;
+	}
+
+	if (gene == NULL) {
+		printf("Error: debes indicar un gen a buscar\n");
+		return;
+	}
+
+	int m = state->gene_length;
+	int len = (int) strlen(gene);
+
+	if (len != m) {
+		printf("Error: el gen '%s' tiene largo %d y se esperaba %d\n", gene, len, m);
+		return;
+	}
+
+	// validar que el gen solo tenga A - C - G - T
+	int i = 0;
+	while (i < len) {
+		char c = gene[i];
+		if (c != 'A' && c != 'C' && c != 'G' && c != 'T') {
+			printf("Error: el gen contiene un caracter inválido '%c'\n", c);
+			return;
+		}
+		i = i + 1;
+	}
+
+	int_list *positions = trie_find(state->root, gene);
+	if (positions == NULL) {
+		printf("-1\n");
+		return;
+	}
+
+	int count = int_list_count(positions);
+	if (count == 0) {
+		printf("-1\n");
+		return;
+	}
+
+	int first = 1;
+	int_list_foreach(positions, print_position, &first);
+	printf("\n");
 }
 
 void bio_max_command(bio_state *state) {
