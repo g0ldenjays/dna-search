@@ -21,7 +21,7 @@ int char_to_index(char c) {
 	}
 }
 
-static char index_to_char(int index) {
+char index_to_char(int index) {
 	if (index == 0) {
 		return 'A';
 	} else if (index == 1) {
