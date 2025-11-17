@@ -21,6 +21,18 @@ int char_to_index(char c) {
 	}
 }
 
+static char index_to_char(int index) {
+	if (index == 0) {
+		return 'A';
+	} else if (index == 1) {
+		return 'C';
+	} else if (index == 2) {
+		return 'G';
+	} else {
+		return 'T';
+	}
+}
+
 // crea el trie completo de altura height (gene_length)
 trie_node *trie_create_recursive(int level, int height) {
 	trie_node *node = malloc(sizeof(trie_node));
@@ -132,20 +144,50 @@ int_list *trie_find(trie_node *root, char *gene) {
 
 void trie_free(trie_node *root, int height) {
 
-    if (root == NULL) {
-        return;
-    }
+	if (root == NULL) {
+		return;
+	}
 
-    int i;
-    for (i = 0; i < 4; i++) {
-        if (root->children[i] != NULL) {
-            trie_free(root->children[i], height);
-        }
-    }
+	int i;
+	for (i = 0; i < 4; i++) {
+		if (root->children[i] != NULL) {
+			trie_free(root->children[i], height);
+		}
+	}
 
-    if (root->positions != NULL) {
-        int_list_free(root->positions);
-    }
+	if (root->positions != NULL) {
+		int_list_free(root->positions);
+	}
 
-    free(root);
+	free(root);
+}
+
+// recorrido recursivo
+void trie_traverse_recursive(trie_node *node, int depth, int gene_length, char *buffer, trie_visit_fn visit, void *user_data) {
+	if (node == NULL) {
+		return;
+	}
+
+	if (depth == gene_length) {
+		buffer[gene_length] = '\0';
+		visit(buffer, node->positions, user_data);
+		return;
+	}
+
+	int i;
+	for (i = 0; i < 4; i = i + 1) {
+		if (node->children[i] != NULL) {
+			buffer[depth] = index_to_char(i);
+			trie_traverse_recursive(node->children[i], depth + 1, gene_length, buffer, visit, user_data);
+		}
+	}
+}
+
+void trie_traverse(trie_node *root, int gene_length, trie_visit_fn visit, void *user_data) {
+	if (root == NULL || gene_length <= 0 || visit == NULL) {
+		return;
+	}
+
+	char buffer[gene_length + 1];
+	trie_traverse_recursive(root, 0, gene_length, buffer, visit, user_data);
 }

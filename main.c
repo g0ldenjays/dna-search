@@ -60,13 +60,13 @@ int main(void) {
 				bio_search_command(&state, gene);
 			}
 		} else if (strcmp(line, "max") == 0) {
-			printf("Comando max recibido (WIP)\n");
+		    bio_max_command(&state);
 
 		} else if (strcmp(line, "min") == 0) {
-			printf("Comando min recibido (WIP)\n");
+		    bio_min_command(&state);
 
 		} else if (strcmp(line, "all") == 0) {
-			printf("Comando all recibido (WIP)\n");
+		    bio_all_command(&state);
 
 		} else if (strlen(line) == 0) {
 			// línea vacía = ignorar comandu
@@ -77,3 +77,4 @@ int main(void) {
 
 	return 0;
 }
+

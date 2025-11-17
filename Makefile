@@ -11,13 +11,9 @@ all: $(TARGET)
 $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ)
 	@echo ""
-	@echo "============================================================================="
+	@echo "========================================================================="
 	@echo "               !!! Compilación completa de $(TARGET) !!! "
-	@echo ""
-	@echo "        Si ves warnings de 'unused parameter', es normal por ahora."
-	@echo "    Esos parámetros todavía no se usan aún, pero son parte del esqueleto."
-	@echo "      Se irán eliminando a medida que se implemente search/max/min/all."
-	@echo "============================================================================="
+	@echo "========================================================================="
 	@echo ""
 
 %.o: %.c

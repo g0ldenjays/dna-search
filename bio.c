@@ -5,6 +5,14 @@
 
 #define MAX_SEQUENCE_LENGTH 1000
 
+typedef struct {
+	int max_count;
+} max_info;
+
+typedef struct {
+	int min_count;
+} min_info;
+
 void bio_state_init(bio_state *state) {
 	state->root = NULL;
 	state->gene_length = 0;
@@ -230,14 +238,181 @@ void bio_search_command(bio_state *state, char *gene) {
 	printf("\n");
 }
 
+void visit_all_callback(char *gene, int_list *positions, void *user_data) {
+	(void)user_data;
+
+	if (positions == NULL) {
+		return;
+	}
+
+	int count = int_list_count(positions);
+	if (count == 0) {
+		return;
+	}
+
+	printf("%s ", gene);
+
+	int first = 1;
+	int_list_foreach(positions, print_position, &first);
+	printf("\n");
+}
+
+void max_count_callback(char *gene, int_list *positions, void *user_data) {
+	(void) gene;
+
+	if (positions == NULL) {
+		return;
+	}
+
+	int count = int_list_count(positions);
+	if (count == 0) {
+		return;
+	}
+
+	max_info *info = (max_info *) user_data;
+
+	if (info->max_count == 0) {
+		info->max_count = count;
+	} else if (count > info->max_count) {
+		info->max_count = count;
+	}
+}
+
+void max_print_callback(char *gene, int_list *positions, void *user_data) {
+	if (positions == NULL) {
+		return;
+	}
+
+	int count = int_list_count(positions);
+	if (count == 0) {
+		return;
+	}
+
+	max_info *info = (max_info *) user_data;
+
+	if (count == info->max_count) {
+		printf("%s ", gene);
+		int first = 1;
+		int_list_foreach(positions, print_position, &first);
+		printf("\n");
+	}
+}
+
 void bio_max_command(bio_state *state) {
-	printf("bio max no implementado\n");
+	if (state == NULL) {
+		return;
+	}
+
+	if (state->is_initialized == 0 || state->root == NULL) {
+		printf("Error: primero debes ejecutar start <gene_length>\n");
+		return;
+	}
+
+	if (state->sequence == NULL || state->sequence_length == 0) {
+		printf("Error: primero debes ejecutar read <archivo>\n");
+		return;
+	}
+
+	max_info info;
+	info.max_count = 0;
+
+	// primera pasada se calcula max_count
+	trie_traverse(state->root, state->gene_length, max_count_callback, &info);
+
+	if (info.max_count == 0) {
+		// no hay genes con apariciones
+		return;
+	}
+
+	// segunda pasada se imprimen genes con max_count
+	trie_traverse(state->root, state->gene_length, max_print_callback, &info);
+}
+
+void min_count_callback(char *gene, int_list *positions, void *user_data) {
+	(void) gene;
+
+	if (positions == NULL) {
+		return;
+	}
+
+	int count = int_list_count(positions);
+	if (count == 0) {
+		return;
+	}
+
+	min_info *info = (min_info *) user_data;
+
+	if (info->min_count == -1) {
+		info->min_count = count;
+	} else if (count < info->min_count) {
+		info->min_count = count;
+	}
+}
+
+void min_print_callback(char *gene, int_list *positions, void *user_data) {
+	if (positions == NULL) {
+		return;
+	}
+
+	int count = int_list_count(positions);
+	if (count == 0) {
+		return;
+	}
+
+	min_info *info = (min_info *) user_data;
+
+	if (count == info->min_count) {
+		printf("%s ", gene);
+		int first = 1;
+		int_list_foreach(positions, print_position, &first);
+		printf("\n");
+	}
 }
 
 void bio_min_command(bio_state *state) {
-	printf("bio min no implementado\n");
+	if (state == NULL) {
+		return;
+	}
+
+	if (state->is_initialized == 0 || state->root == NULL) {
+		printf("Error: primero debes ejecutar start <gene_length>\n");
+		return;
+	}
+
+	if (state->sequence == NULL || state->sequence_length == 0) {
+		printf("Error: primero debes ejecutar read <archivo>\n");
+		return;
+	}
+
+	min_info info;
+	info.min_count = -1;
+
+	// primera pasada se calcula min_count
+	trie_traverse(state->root, state->gene_length, min_count_callback, &info);
+
+	if (info.min_count == -1) {
+		// no hay genes con apariciones
+		return;
+	}
+
+	// segunda pasada se imprimen genes con min_count 
+	trie_traverse(state->root, state->gene_length, min_print_callback, &info);
 }
 
 void bio_all_command(bio_state *state) {
-	printf("bio all no implementado\n");
+	if (state == NULL) {
+		return;
+	}
+
+	if (state->is_initialized == 0 || state->root == NULL) {
+		printf("Error: primero debes ejecutar start <gene_length>\n");
+		return;
+	}
+
+	if (state->sequence == NULL || state->sequence_length == 0) {
+		printf("Error: primero debes ejecutar read <archivo>\n");
+		return;
+	}
+
+	trie_traverse(state->root, state->gene_length, visit_all_callback, NULL);
 }
